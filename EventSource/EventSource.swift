@@ -77,6 +77,7 @@ open class EventSource: NSObject, EventSourceProtocol, URLSessionDataDelegate {
     static let DefaultRetryTime = 3000
 
     public let url: URL
+    public let timeout: TimeInterval
     private(set) public var lastEventId: String?
     private(set) public var retryTime = EventSource.DefaultRetryTime
     private(set) public var headers: [String: String]
@@ -94,10 +95,12 @@ open class EventSource: NSObject, EventSourceProtocol, URLSessionDataDelegate {
 
     public init(
         url: URL,
-        headers: [String: String] = [:]
+        headers: [String: String] = [:],
+        timeout: TimeInterval = TimeInterval(INT_MAX)
     ) {
         self.url = url
         self.headers = headers
+        self.timeout = timeout
 
         readyState = EventSourceState.closed
         operationQueue = OperationQueue()
@@ -205,7 +208,7 @@ internal extension EventSource {
         additionalHeaders["Cache-Control"] = "no-cache"
 
         let sessionConfiguration = URLSessionConfiguration.default
-        sessionConfiguration.timeoutIntervalForRequest = TimeInterval(INT_MAX)
+        sessionConfiguration.timeoutIntervalForRequest = timeout
         sessionConfiguration.timeoutIntervalForResource = TimeInterval(INT_MAX)
         sessionConfiguration.httpAdditionalHeaders = additionalHeaders
 
